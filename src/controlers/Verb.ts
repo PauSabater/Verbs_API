@@ -3,13 +3,20 @@ import mongoose from 'mongoose'
 import Verb from '../models/Verb'
 
 const createVerb = (req: Request, res: Response, next: NextFunction) => {
-    const { verb } = req.body
-    const { url } = req.body
+    const { verb, url, level, order, verbHTML, stemFormationHTML, isIrregular, isSeparable } = req.body
+    const { modes } = req.body
 
     const verbData = new Verb({
         _id: new mongoose.Types.ObjectId(),
         verb,
-        url
+        url,
+        level,
+        order,
+        verbHTML,
+        stemFormationHTML,
+        isIrregular,
+        isSeparable,
+        modes
     })
 
     return verbData
@@ -22,6 +29,14 @@ const readVerb = (req: Request, res: Response, next: NextFunction) => {
     const verbId = req.params.verbId
 
     return Verb.findById(verbId)
+        .then((verb) => (verb ? res.status(200).json({ verb }) : res.status(404).json({ message: 'not found' })))
+        .catch((error) => res.status(500).json({ error }))
+}
+
+const readVerbByString = (req: Request, res: Response, next: NextFunction) => {
+    const verb = req.params.verb
+
+    return Verb.findOne({ verb: verb })
         .then((verb) => (verb ? res.status(200).json({ verb }) : res.status(404).json({ message: 'not found' })))
         .catch((error) => res.status(500).json({ error }))
 }
@@ -59,4 +74,4 @@ const deleteVerb = (req: Request, res: Response, next: NextFunction) => {
         .catch((error) => res.status(500).json({ error }))
 }
 
-export default { createVerb, readVerb, readAll, updateVerb, deleteVerb }
+export default { createVerb, readVerb, readAll, updateVerb, deleteVerb, readVerbByString }
