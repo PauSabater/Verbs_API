@@ -33,10 +33,20 @@ const readVerb = (req: Request, res: Response, next: NextFunction) => {
         .catch((error) => res.status(500).json({ error }))
 }
 
-const readVerbByString = (req: Request, res: Response, next: NextFunction) => {
-    const verb = req.params.verb
+// const getVerbModal = (req: Request, res: Response, next: NextFunction) => {
+//     const query = Verb.find().where({ verb: req.params.verb })
 
-    return Verb.findOne({ verb: verb })
+//     const verb = req.params.verb
+
+//     return Verb.findOne({ verb: verb })
+//         .then((verb) => (verb ? res.status(200).json({ verb }) : res.status(404).json({ message: 'not found' })))
+//         .catch((error) => res.status(500).json({ error }))
+// }
+
+const readVerbByString = (req: Request, res: Response, next: NextFunction) => {
+    const verbName = req.params.verb
+
+    return Verb.findOne({ verb: verbName })
         .then((verb) => (verb ? res.status(200).json({ verb }) : res.status(404).json({ message: 'not found' })))
         .catch((error) => res.status(500).json({ error }))
 }

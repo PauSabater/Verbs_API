@@ -2,7 +2,7 @@ import express from 'express'
 import http from 'http'
 import mongoose from 'mongoose'
 import { config } from './config/config'
-import { Logging } from '../src/library/Logging'
+import { Logging } from './library/Logging'
 import verbRoutes from './routes/Verb'
 
 const router = express()
