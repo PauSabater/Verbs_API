@@ -6,7 +6,7 @@
     "scripts": {
         "start": "node build/index.js",
         "postinstall": "tsc",
-        "build": "rimraf build && tsc",
+        "vercel-build": "rimraf build && tsc",
         "ts.check": "tsc --project tsconfig.json",
         "add-build": "git add build"
     },
