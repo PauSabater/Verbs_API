@@ -3,26 +3,24 @@ import mongoose from 'mongoose'
 import Verb from '../models/Verb'
 
 const createVerb = (req: Request, res: Response, next: NextFunction) => {
-    const { verb, url, level, order, verbHTML, stemFormationHTML, isIrregular, isSeparable } = req.body
-    const { modes } = req.body
+    const { verb, url, data, descriptions, examples } = req.body
 
     const verbData = new Verb({
-        _id: new mongoose.Types.ObjectId(),
+        _id: verb,
         verb,
         url,
-        level,
-        order,
-        verbHTML,
-        stemFormationHTML,
-        isIrregular,
-        isSeparable,
-        modes
+        data,
+        descriptions,
+        examples
     })
 
     return verbData
         .save()
         .then((verb) => res.status(201).json({ verb }))
-        .catch((error) => res.status(500).json({ error }))
+        .catch((error) => {
+            console.log('ERRORS, VERB NOT CREATED')
+            res.status(500).json({ error })
+        })
 }
 
 const readVerb = (req: Request, res: Response, next: NextFunction) => {
@@ -33,15 +31,25 @@ const readVerb = (req: Request, res: Response, next: NextFunction) => {
         .catch((error) => res.status(500).json({ error }))
 }
 
-// const getVerbModal = (req: Request, res: Response, next: NextFunction) => {
-//     const query = Verb.find().where({ verb: req.params.verb })
+const getVerbSearchBar = (req: Request, res: Response, next: NextFunction) => {
+    const verbName = req.params.verb
 
-//     const verb = req.params.verb
+    const query = { verb: new RegExp('^' + verbName) }
+    const project = {
+        verb: 1,
+        data: { properties: { level: 1 } }
+    }
 
-//     return Verb.findOne({ verb: verb })
-//         .then((verb) => (verb ? res.status(200).json({ verb }) : res.status(404).json({ message: 'not found' })))
-//         .catch((error) => res.status(500).json({ error }))
-// }
+    return Verb.find(query, project)
+        .limit(10)
+        .then((verbs) => res.status(200).json({ verbs }))
+        .catch((error) => res.status(500).json({ error }))
+    // .project({ verb: 1 })
+
+    // return Verb.find({
+    //     verb: verbName
+    // }).project({ item: 1, status: 1 })
+}
 
 const readVerbByString = (req: Request, res: Response, next: NextFunction) => {
     const verbName = req.params.verb
@@ -84,4 +92,4 @@ const deleteVerb = (req: Request, res: Response, next: NextFunction) => {
         .catch((error) => res.status(500).json({ error }))
 }
 
-export default { createVerb, readVerb, readAll, updateVerb, deleteVerb, readVerbByString }
+export default { createVerb, readVerb, readAll, updateVerb, deleteVerb, readVerbByString, getVerbSearchBar }

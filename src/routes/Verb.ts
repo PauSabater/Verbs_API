@@ -5,6 +5,7 @@ import { Schemas, ValidateJoi } from '../middleware/Joi'
 const router = express.Router()
 
 router.post('/create', ValidateJoi(Schemas.verb.create), controller.createVerb)
+router.get('/get/search/:verb', controller.getVerbSearchBar)
 router.get('/get/:verbId', controller.readVerb)
 router.get('/get/verb/:verb', controller.readVerbByString)
 router.get('/get', controller.readAll)

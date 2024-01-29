@@ -4,12 +4,19 @@ import mongoose from 'mongoose'
 import { config } from './config/config'
 import { Logging } from './library/Logging'
 import verbRoutes from './routes/Verb'
+import userRoutes from './routes/User'
+const cors = require('cors')
+const cookieParser = require('cookie-parser')
 
 const router = express()
 
 /** Connect to Mongo */
 mongoose
-    .connect(config.mongo.url, { retryWrites: true, w: 'majority' })
+    .connect(config.mongo.url, {
+        dbName: 'konjug',
+        retryWrites: true,
+        w: 'majority'
+    })
     .then(() => {
         Logging.info('Mongo connected successfully.')
         StartServer()
@@ -35,29 +42,44 @@ const StartServer = () => {
 
     router.use(express.urlencoded({ extended: true }))
     router.use(express.json())
+    router.use(cookieParser())
 
     /** Rules of our API */
     router.use((req, res, next) => {
-        res.header('Access-Control-Allow-Origin', '*')
+        res.header('Access-Control-Allow-Origin', 'http://localhost:3000')
         res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization')
-
-        if (req.method == 'OPTIONS') {
-            res.header('Access-Control-Allow-Methods', 'PUT, POST, PATCH, DELETE, GET')
-            return res.status(200).json({})
-        }
-
+        // @ts-ignore
+        res.header('Access-Control-Allow-Credentials', true)
+        res.header('Access-Control-Allow-Methods', 'PUT, POST, PATCH, DELETE, GET')
         next()
+
+        // if (req.method == 'OPTIONS') {
+        //     return res.status(200).json({})
+        // }
     })
 
     /** Routes */
     router.use('/verbs', verbRoutes)
+    router.use('/users', userRoutes)
+
+    /** CORS */
+    router.use(
+        cors({
+            credentials: true,
+            origin: ['http://localhost:3000']
+        })
+    )
+
+    router.get('/', (req, res, next) => {
+        return res.send('Express Typescript on Vercel')
+    })
 
     /** Healthcheck */
-    router.get('/ping', (req, res, next) => res.status(200).json({ hello: 'world' }))
+    router.get('/ping', (req, res, next) => res.status(200).json({ hello: 'Hello from konjug' }))
 
     /** Error handling */
     router.use((req, res, next) => {
-        const error = new Error('Not found')
+        const error = new Error('Route not found')
 
         Logging.error(error)
 
