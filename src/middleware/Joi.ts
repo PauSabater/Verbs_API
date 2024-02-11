@@ -17,16 +17,15 @@ export const ValidateJoi = (schema: ObjectSchema) => {
     }
 }
 
-export const modeSchema = {
-    tense: Joi.string().required(),
+export const conjugationSchema = () => ({
     conjugations: Joi.array().items({
         person: Joi.string(),
         conjugation: Joi.string().required(),
         conjugationHTML: Joi.string().required()
     })
-}
+})
 
-export const examplesByLangSchemaDefinition = () => ({
+export const examplesByLangSchema = () => ({
     de: Joi.string(),
     en: Joi.string(),
     es: Joi.string(),
@@ -35,26 +34,26 @@ export const examplesByLangSchemaDefinition = () => ({
 
 export const examplesSchemaDefinition = () => ({
     indicative: {
-        präsens: Joi.object({ ...examplesByLangSchemaDefinition() }),
-        präteritum: Joi.object({ ...examplesByLangSchemaDefinition() }),
-        perfekt: Joi.object({ ...examplesByLangSchemaDefinition() }),
-        plusquamperfekt: Joi.object({ ...examplesByLangSchemaDefinition() }),
-        'futur I': Joi.object({ ...examplesByLangSchemaDefinition() }),
-        'futur II': Joi.object({ ...examplesByLangSchemaDefinition() })
+        präsens: Joi.object({ ...examplesByLangSchema() }),
+        präteritum: Joi.object({ ...examplesByLangSchema() }),
+        perfekt: Joi.object({ ...examplesByLangSchema() }),
+        plusquamperfekt: Joi.object({ ...examplesByLangSchema() }),
+        futur_I: Joi.object({ ...examplesByLangSchema() }),
+        futur_II: Joi.object({ ...examplesByLangSchema() })
     },
     infinitive: {
-        'partizip II': Joi.object({ ...examplesByLangSchemaDefinition() })
+        partizip_II: Joi.object({ ...examplesByLangSchema() })
     },
     imperative: {
-        präsens: Joi.object({ ...examplesByLangSchemaDefinition() })
+        präsens: Joi.object({ ...examplesByLangSchema() })
     },
     conjunctive: {
-        'Konjunktiv I': Joi.object({ ...examplesByLangSchemaDefinition() }),
-        'Konjunktiv II': Joi.object({ ...examplesByLangSchemaDefinition() })
+        konjunktiv_I: Joi.object({ ...examplesByLangSchema() }),
+        konjunktiv_II: Joi.object({ ...examplesByLangSchema() })
     },
     conditional: {
-        'Konjunktiv I': Joi.object({ ...examplesByLangSchemaDefinition() }),
-        'Konjunktiv II': Joi.object({ ...examplesByLangSchemaDefinition() })
+        konjunktiv_I: Joi.object({ ...examplesByLangSchema() }),
+        konjunktiv_II: Joi.object({ ...examplesByLangSchema() })
     }
 })
 
@@ -81,11 +80,35 @@ export const Schemas = {
                     isModal: Joi.boolean().required()
                 },
                 tenses: {
-                    indicative: Joi.array().items(modeSchema),
-                    infinitive: Joi.array().items(modeSchema),
-                    imperative: Joi.array().items(modeSchema),
-                    conjunctive: Joi.array().items(modeSchema),
-                    conditionalOrConjunctiveII: Joi.array().items(modeSchema)
+                    indicative: {
+                        präsens: Joi.object({ ...conjugationSchema() }),
+                        präteritum: Joi.object({ ...conjugationSchema() }),
+                        perfekt: Joi.object({ ...conjugationSchema() }),
+                        plusquam: Joi.object({ ...conjugationSchema() }),
+                        futur_I: Joi.object({ ...conjugationSchema() }),
+                        futur_II: Joi.object({ ...conjugationSchema() })
+                    },
+                    infinitive: {
+                        infinitiv_I: Joi.object({ ...conjugationSchema() }),
+                        infinitiv_II: Joi.object({ ...conjugationSchema() }),
+                        partizip_I: Joi.object({ ...conjugationSchema() }),
+                        partizip_II: Joi.object({ ...conjugationSchema() })
+                    },
+                    imperative: {
+                        imperative: Joi.object({ ...conjugationSchema() })
+                    },
+                    conjunctive: {
+                        konjunktiv_I: Joi.object({ ...conjugationSchema() }),
+                        konjunktiv_II: Joi.object({ ...conjugationSchema() }),
+                        konj_perfekt: Joi.object({ ...conjugationSchema() }),
+                        konj_plusquam: Joi.object({ ...conjugationSchema() }),
+                        konj_futur_I: Joi.object({ ...conjugationSchema() }),
+                        konj_futur_II: Joi.object({ ...conjugationSchema() })
+                    },
+                    conditionalOrConjunctiveII: {
+                        konjunktiv_II: Joi.object({ ...conjugationSchema() }),
+                        konj_plusquam: Joi.object({ ...conjugationSchema() })
+                    }
                 }
             },
             descriptions: {
@@ -96,26 +119,26 @@ export const Schemas = {
             },
             examples: {
                 indicative: {
-                    präsens: Joi.object({ ...examplesByLangSchemaDefinition() }),
-                    präteritum: Joi.object({ ...examplesByLangSchemaDefinition() }),
-                    perfekt: Joi.object({ ...examplesByLangSchemaDefinition() }),
-                    plusquamperfekt: Joi.object({ ...examplesByLangSchemaDefinition() }),
-                    'futur I': Joi.object({ ...examplesByLangSchemaDefinition() }),
-                    'futur II': Joi.object({ ...examplesByLangSchemaDefinition() })
+                    präsens: Joi.object({ ...examplesByLangSchema() }),
+                    präteritum: Joi.object({ ...examplesByLangSchema() }),
+                    perfekt: Joi.object({ ...examplesByLangSchema() }),
+                    plusquamperfekt: Joi.object({ ...examplesByLangSchema() }),
+                    futur_I: Joi.object({ ...examplesByLangSchema() }),
+                    futur_II: Joi.object({ ...examplesByLangSchema() })
                 },
                 infinitive: {
-                    'partizip II': Joi.object({ ...examplesByLangSchemaDefinition() })
+                    partizip_II: Joi.object({ ...examplesByLangSchema() })
                 },
                 imperative: {
-                    präsens: Joi.object({ ...examplesByLangSchemaDefinition() })
+                    präsens: Joi.object({ ...examplesByLangSchema() })
                 },
                 conjunctive: {
-                    'Konjunktiv I': Joi.object({ ...examplesByLangSchemaDefinition() }),
-                    'Konjunktiv II': Joi.object({ ...examplesByLangSchemaDefinition() })
+                    konjunktiv_I: Joi.object({ ...examplesByLangSchema() }),
+                    konjunktiv_II: Joi.object({ ...examplesByLangSchema() })
                 },
                 conditional: {
-                    'Konjunktiv I': Joi.object({ ...examplesByLangSchemaDefinition() }),
-                    'Konjunktiv II': Joi.object({ ...examplesByLangSchemaDefinition() })
+                    konjunktiv_I: Joi.object({ ...examplesByLangSchema() }),
+                    konjunktiv_II: Joi.object({ ...examplesByLangSchema() })
                 }
             }
         }),

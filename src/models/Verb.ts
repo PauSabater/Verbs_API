@@ -63,9 +63,8 @@ export type IModeExamples = {
 
 export interface IVerbModel extends IVerb, Document {}
 
-const ModeSchema: Schema = new Schema(
+const ConjugationSchema: Schema = new Schema(
     {
-        tense: { type: String, required: true },
         conjugations: [
             {
                 person: { type: String, required: false },
@@ -100,22 +99,22 @@ const ExamplesSchema: Schema = new Schema(
             präteritum: { type: ExamplesByLangSchema, required: false },
             perfekt: { type: ExamplesByLangSchema, required: false },
             plusquamperfekt: { type: ExamplesByLangSchema, required: false },
-            'futur I': { type: ExamplesByLangSchema, required: false },
-            'futur II': { type: ExamplesByLangSchema, required: false }
+            futur_I: { type: ExamplesByLangSchema, required: false },
+            futur_II: { type: ExamplesByLangSchema, required: false }
         },
         infinitive: {
-            'partizip II': { type: ExamplesByLangSchema, required: false }
+            partizip_II: { type: ExamplesByLangSchema, required: false }
         },
         imperative: {
             präsens: { type: ExamplesByLangSchema, required: false }
         },
         conjunctive: {
-            'Konjunktiv I': { type: ExamplesByLangSchema, required: false },
-            'Konjunktiv II': { type: ExamplesByLangSchema, required: false }
+            konjunktiv_I: { type: ExamplesByLangSchema, required: false },
+            konjunktiv_II: { type: ExamplesByLangSchema, required: false }
         },
         conditional: {
-            'Konjunktiv I': { type: ExamplesByLangSchema, required: false },
-            'Konjunktiv II': { type: ExamplesByLangSchema, required: false }
+            konjunktiv_I: { type: ExamplesByLangSchema, required: false },
+            konjunktiv_II: { type: ExamplesByLangSchema, required: false }
         }
     },
     {
@@ -146,10 +145,35 @@ const VerbSchema: Schema = new Schema(
                 isModal: { type: Boolean, required: true }
             },
             tenses: {
-                indicative: [{ type: [ModeSchema], required: true }],
-                infinitive: [{ type: [ModeSchema], required: true }],
-                imperative: [{ type: [ModeSchema], required: true }],
-                conjunctive: [{ type: [ModeSchema], required: true }]
+                indicative: {
+                    präsens: { type: [ConjugationSchema], required: true },
+                    präteritum: { type: [ConjugationSchema], required: true },
+                    perfekt: { type: [ConjugationSchema], required: true },
+                    plusquam: { type: [ConjugationSchema], required: true },
+                    futur_I: { type: [ConjugationSchema], required: true },
+                    futur_II: { type: [ConjugationSchema], required: true }
+                },
+                infinitive: {
+                    infinitiv_I: { type: [ConjugationSchema], required: true },
+                    infinitiv_II: { type: [ConjugationSchema], required: true },
+                    partizip_I: { type: [ConjugationSchema], required: true },
+                    partizip_II: { type: [ConjugationSchema], required: true }
+                },
+                imperative: {
+                    imperative: { type: [ConjugationSchema], required: true }
+                },
+                conditionalOrConjunctiveII: {
+                    konjunktiv_II: { type: [ConjugationSchema], required: true },
+                    konj_plusquam: { type: [ConjugationSchema], required: true }
+                },
+                conjunctive: {
+                    konjunktiv_I: { type: [ConjugationSchema], required: true },
+                    konjunktiv_II: { type: [ConjugationSchema], required: true },
+                    konj_perfekt: { type: [ConjugationSchema], required: true },
+                    konj_plusquam: { type: [ConjugationSchema], required: true },
+                    konj_futur_I: { type: [ConjugationSchema], required: true },
+                    konj_futur_II: { type: [ConjugationSchema], required: true }
+                }
             }
         },
         descriptions: {

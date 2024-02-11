@@ -23,14 +23,6 @@ const createVerb = (req: Request, res: Response, next: NextFunction) => {
         })
 }
 
-const readVerb = (req: Request, res: Response, next: NextFunction) => {
-    const verbId = req.params.verbId
-
-    return Verb.findById(verbId)
-        .then((verb) => (verb ? res.status(200).json({ verb }) : res.status(404).json({ message: 'not found' })))
-        .catch((error) => res.status(500).json({ error }))
-}
-
 const getVerbSearchBar = (req: Request, res: Response, next: NextFunction) => {
     const verbName = req.params.verb
 
@@ -44,14 +36,61 @@ const getVerbSearchBar = (req: Request, res: Response, next: NextFunction) => {
         .limit(10)
         .then((verbs) => res.status(200).json({ verbs }))
         .catch((error) => res.status(500).json({ error }))
-    // .project({ verb: 1 })
-
-    // return Verb.find({
-    //     verb: verbName
-    // }).project({ item: 1, status: 1 })
 }
 
-const readVerbByString = (req: Request, res: Response, next: NextFunction) => {
+const getVerbsProperties = (req: Request, res: Response, next: NextFunction) => {
+    let verbsQuery: string[] = []
+
+    for (const key of Object.keys(req.query)) {
+        verbsQuery.push(key || 'nothing')
+    }
+
+    if (verbsQuery.length === 0) return res.status(500).json({ message: 'no parameters were provided' })
+
+    // const query = { $or: [{ verb: 'sein' }, { verb: 'sehen' }, { verb: 'haben' }] }
+
+    const query = { verb: { $in: verbsQuery } }
+    const project = {
+        verb: 1,
+        data: { properties: 1 }
+    }
+
+    return Verb.find(query, project)
+        .then((verbs) => {
+            const verbsProps = []
+            verbs.forEach((verb) => {
+                delete verb.data.tenses
+                verbsProps.push({
+                    verb: verb.verb,
+                    properties: verb.data.properties
+                })
+            })
+            res.status(200).json(verbsProps)
+        })
+        .catch((error) => res.status(500).json({ error }))
+}
+
+const readTenseFromVerb = (req: Request, res: Response, next: NextFunction) => {
+    const verbName = req.params.verb
+    const verbMode: string = req.query.mode as string
+    const verbTense = req.query.tense as string
+
+    const project = {
+        verb: 1,
+        data: { tenses: { [verbMode]: { [verbTense]: { conjugations: 1 } } } }
+    }
+
+    const query = {
+        verb: new RegExp('^' + verbName)
+    }
+
+    return Verb.find(query, project)
+        .limit(1)
+        .then((verb) => (verb ? res.status(200).json({ verb }) : res.status(404).json({ message: req.query.verb + 'not found' })))
+        .catch((error) => res.status(500).json({ error }))
+}
+
+const readVerb = (req: Request, res: Response, next: NextFunction) => {
     const verbName = req.params.verb
 
     return Verb.findOne({ verb: verbName })
@@ -92,4 +131,4 @@ const deleteVerb = (req: Request, res: Response, next: NextFunction) => {
         .catch((error) => res.status(500).json({ error }))
 }
 
-export default { createVerb, readVerb, readAll, updateVerb, deleteVerb, readVerbByString, getVerbSearchBar }
+export default { createVerb, readVerb, readAll, updateVerb, deleteVerb, getVerbSearchBar, readTenseFromVerb, getVerbsProperties }

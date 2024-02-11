@@ -1,0 +1,14 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "German verbs API for konjug site",
+        "version": "1.0.0"
+    },
+    "servers": [
+        {
+            "url": "http://localhost:9090",
+            "description": "Local development server"
+        }
+    ],
+    "apis": ["./routes/*.js"]
+}

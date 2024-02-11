@@ -7,6 +7,8 @@ import verbRoutes from './routes/Verb'
 import userRoutes from './routes/User'
 const cors = require('cors')
 const cookieParser = require('cookie-parser')
+const swaggerUi = require('swagger-ui-express')
+const swaggerDocument = require('./swagger.json')
 
 const router = express()
 
@@ -46,7 +48,7 @@ const StartServer = () => {
 
     /** Rules of our API */
     router.use((req, res, next) => {
-        res.setHeader('Access-Control-Allow-Origin', 'http://localhost:3000')
+        res.setHeader('Access-Control-Allow-Origin', 'https://localhost:3000')
         res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization')
         // @ts-ignore
         res.header('Access-Control-Allow-Credentials', true)
@@ -61,14 +63,23 @@ const StartServer = () => {
     })
 
     /** Routes */
-    router.use('/verbs', verbRoutes)
-    router.use('/users', userRoutes)
+    router.use('/api/verbs', verbRoutes)
+    router.use('/api/users', userRoutes)
+    router.use(
+        '/api-docs',
+        swaggerUi.serve,
+        swaggerUi.setup(undefined, {
+            swaggerOptions: {
+                url: '/swagger.json'
+            }
+        })
+    )
 
     /** CORS */
     router.use(
         cors({
             credentials: true,
-            origin: ['http://localhost:3000']
+            origin: ['https://localhost:3000']
         })
     )
 
