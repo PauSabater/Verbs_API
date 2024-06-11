@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from 'express'
 import mongoose from 'mongoose'
 import Verb from '../models/Verb'
+import { getTensesModes } from '../utils/utils'
 
 const createVerb = (req: Request, res: Response, next: NextFunction) => {
     const { verb, url, data, descriptions, examples } = req.body
@@ -71,21 +72,60 @@ const getVerbsProperties = (req: Request, res: Response, next: NextFunction) => 
 }
 
 const readTenseFromVerb = (req: Request, res: Response, next: NextFunction) => {
-    const verbName = req.params.verb
-    const verbMode: string = req.query.mode as string
-    const verbTense = req.query.tense as string
 
-    const project = {
-        verb: 1,
-        data: { tenses: { [verbMode]: { [verbTense]: { conjugations: 1 } } } }
-    }
+    const verbName = req.params.verb;
+    // const verbModes = (req.query.mode as string).split(','); // Assuming `mode` is a comma-separated string of modes
+    const verbTenses: string[] = (req.query.tenses as string).split(',') // Assuming `tense` is a comma-separated string of tenses
+    const verbModes: string[] = getTensesModes(verbTenses)
 
     const query = {
         verb: new RegExp('^' + verbName)
     }
 
+    // Construct the dynamic projection object
+    const tensesProjection = {}
+    verbModes.forEach(mode => {
+        tensesProjection[mode] = {}
+        verbTenses.forEach(tense => {
+            tensesProjection[mode][tense] = `$data.tenses.${mode}.${tense}`;
+        });
+    });
+
+    const pipeline = [
+        {
+            $match: query
+        },
+        {
+            $project: {
+                _id: 0,
+                verb: 1,
+                data: {
+                    tenses: tensesProjection
+                }
+            }
+        },
+        {
+            $limit: 1
+        }
+    ];
+
+    return Verb.aggregate(pipeline)
+        .then((verbs) => (verbs.length ? res.status(200).json({ verb: verbs[0] }) : res.status(404).json({ message: req.params.verb + ' not found' })))
+        .catch((error) => res.status(500).json({ error }))
+}
+
+const getAllSeparablerVerbs = (req: Request, res: Response, next: NextFunction) => {
+
+    const project = {
+        _id: 1
+    }
+
+    const query = {
+        "data.properties.isSeparable": true
+        // data: {properties: { isSeparable: true}}
+    }
+
     return Verb.find(query, project)
-        .limit(1)
         .then((verb) => (verb ? res.status(200).json({ verb }) : res.status(404).json({ message: req.query.verb + 'not found' })))
         .catch((error) => res.status(500).json({ error }))
 }
@@ -97,6 +137,24 @@ const readVerb = (req: Request, res: Response, next: NextFunction) => {
         .then((verb) => (verb ? res.status(200).json({ verb }) : res.status(404).json({ message: 'not found' })))
         .catch((error) => res.status(500).json({ error }))
 }
+
+const getVerbExists = (req: Request, res: Response, next: NextFunction) => {
+
+    const verbName = req.params.verb
+
+    const project = {
+        _id: 1
+    }
+
+    const query = {
+        "_id": verbName
+    }
+
+    return Verb.find(query, project)
+        .then((data) => (data ? res.status(200).json({ data }) : res.status(404).json({ message: verbName })))
+        .catch((error) => res.status(500).json({ error }))
+}
+
 
 const readAll = (req: Request, res: Response, next: NextFunction) => {
     return Verb.find()
@@ -131,4 +189,4 @@ const deleteVerb = (req: Request, res: Response, next: NextFunction) => {
         .catch((error) => res.status(500).json({ error }))
 }
 
-export default { createVerb, readVerb, readAll, updateVerb, deleteVerb, getVerbSearchBar, readTenseFromVerb, getVerbsProperties }
+export default { createVerb, readVerb, readAll, updateVerb, deleteVerb, getVerbSearchBar, readTenseFromVerb, getVerbsProperties, getAllSeparablerVerbs, getVerbExists }

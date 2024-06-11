@@ -14,6 +14,8 @@ export interface IVerb {
             stemFormationHTML: string
             isIrregular: boolean
             isSeparable: boolean
+            prefixed?: boolean
+            reflexive?: boolean
             auxiliary: string
             translations: {
                 en: string
@@ -67,6 +69,8 @@ const ConjugationSchema: Schema = new Schema(
     {
         conjugations: [
             {
+                preconjugation: { type: String, required: false },
+                preconjugationHTML: { type: String, required: false },
                 person: { type: String, required: false },
                 conjugation: { type: String, required: true },
                 conjugationHTML: { type: String, required: true }
@@ -135,6 +139,8 @@ const VerbSchema: Schema = new Schema(
                 stemFormationHTML: { type: String, required: true },
                 isIrregular: { type: Boolean, required: true },
                 isSeparable: { type: Boolean, required: true },
+                prefixed: { type: Boolean, required: false },
+                reflexive: { type: Boolean, required: false },
                 auxiliary: { type: String, required: true },
                 translations: {
                     en: { type: String, required: true },

@@ -19,6 +19,8 @@ export const ValidateJoi = (schema: ObjectSchema) => {
 
 export const conjugationSchema = () => ({
     conjugations: Joi.array().items({
+        preconjugation: Joi.string(),
+        preconjugationHTML: Joi.string(),
         person: Joi.string(),
         conjugation: Joi.string().required(),
         conjugationHTML: Joi.string().required()
@@ -70,6 +72,8 @@ export const Schemas = {
                     stemFormationHTML: Joi.string().required(),
                     isIrregular: Joi.boolean().required(),
                     isSeparable: Joi.boolean().required(),
+                    prefixed: Joi.boolean().optional(),
+                    reflexive: Joi.boolean().optional(),
                     auxiliary: Joi.string().required(),
                     translations: {
                         en: Joi.string(),
