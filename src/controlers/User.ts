@@ -6,9 +6,7 @@ const jwt = require('jsonwebtoken')
 var cookieParser = require('cookie-parser')
 
 // https://www.mongodb.com/community/forums/t/email-confirmation-script-for-user-authentication-via-email-address/13905/10
-
 // https://www.mongodb.com/developer/products/atlas/email-password-authentication-app-services/
-
 // https://www.youtube.com/watch?v=IxcKMcsBGE8&list=PLlameCF3cMEs0NQhLQtTdbL1VEfD1tK7Y
 
 const jwtCookieName = 'jwt'

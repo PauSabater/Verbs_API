@@ -3,6 +3,53 @@ import mongoose from 'mongoose'
 import Verb from '../models/Verb'
 import { getTensesModes } from '../utils/utils'
 
+
+
+const addDescription = async (req: Request, res: Response, next: NextFunction) => {
+
+  const id = req.params;
+  const description = req.body;
+
+
+  try {
+    const updatedRecord = await Verb.updateOne(
+        { _id: id.verb },
+        { $set: { 'descriptions.en': description.value } },
+        {
+            new: true,
+            // upsert: true
+        }
+    )
+
+    if (!updatedRecord) {
+      return res.status(404).json({ error: 'Record not found' });
+    }
+
+    res.json(updatedRecord);
+  } catch (err) {
+    console.error('error');
+    console.error(err)
+    res.status(500).send('Server Error');
+  }
+}
+
+const renameProperties = async (req: Request, res: Response) => {
+    try {
+
+        const result = await Verb.updateMany(
+        { 'data.tenses.conjunctive.konj_futur_II': { $exists: true } },
+        { $rename: { 'data.tenses.conjunctive.konj_futur_II': 'data.tenses.conjunctive.konj_I_futur_II' } }
+        );
+
+        console.log(`${result.modifiedCount} documents updated`);
+
+        res.send(`${result.modifiedCount} documents updated`);
+    } catch (err) {
+        console.error('Error updating documents:', err);
+        res.status(500).send('Error updating documents');
+    }
+    }
+
 const createVerb = (req: Request, res: Response, next: NextFunction) => {
     const { verb, url, data, descriptions, examples } = req.body
 
@@ -34,7 +81,7 @@ const getVerbSearchBar = (req: Request, res: Response, next: NextFunction) => {
     }
 
     return Verb.find(query, project)
-        .limit(10)
+        .limit(5)
         .then((verbs) => res.status(200).json({ verbs }))
         .catch((error) => res.status(500).json({ error }))
 }
@@ -47,8 +94,6 @@ const getVerbsProperties = (req: Request, res: Response, next: NextFunction) => 
     }
 
     if (verbsQuery.length === 0) return res.status(500).json({ message: 'no parameters were provided' })
-
-    // const query = { $or: [{ verb: 'sein' }, { verb: 'sehen' }, { verb: 'haben' }] }
 
     const query = { verb: { $in: verbsQuery } }
     const project = {
@@ -71,7 +116,74 @@ const getVerbsProperties = (req: Request, res: Response, next: NextFunction) => 
         .catch((error) => res.status(500).json({ error }))
 }
 
-const readTenseFromVerb = (req: Request, res: Response, next: NextFunction) => {
+const getRandomVerb = async (req: Request, res: Response, next: NextFunction) => {
+
+    const levelsQuery = req.query.levels as string
+    const levelsArray = levelsQuery
+        ? levelsQuery.toUpperCase().split(',')
+        : ''
+
+    const typesQuery = req.query.types as string
+
+    /* Available types:
+        - regular
+        - irregular
+        - separable
+        - inseparable
+        - prefixed
+        - modal
+        - auxiliary
+    */
+
+    const typesArray = typesQuery ? typesQuery.split(',') : ''
+
+    const queryMatch = {
+        ...levelsArray
+            && { "data.properties.level": { $in: levelsArray }},
+
+        ...typesArray.includes('regular')
+            && { "data.properties.isIrregular": false },
+
+        ...typesArray.includes('irregular')
+            && { "data.properties.isIrregular": true },
+
+        ...typesArray.includes('separable')
+            && { "data.properties.isSeparable": true },
+
+        ...typesArray.includes('inseparable')
+            && { "data.properties.isSeparable": false },
+
+        ...typesArray.includes('prefixed')
+            && { "data.properties.prefied": true },
+
+        ...typesArray.includes('modal')
+            && { "data.properties.isModal": true },
+    }
+
+    const pipeline = [
+            {
+                $match: queryMatch,
+            },
+            { $sample: { size: 1 } },
+            { $project: {
+                _id: 1,
+                "data.properties": 1
+
+            } }
+        ]
+
+    // res.json(levels)
+
+    return Verb.aggregate(pipeline)
+        .then((verbs) => (verbs.length
+            ? res.status(200).json({ results: verbs[0] })
+            : res.status(404).json({ message: req.params.verb + ' not found' })))
+        .catch((error) => res.status(500).json({ error }))
+
+}
+
+
+const getTenseFromVerb = (req: Request, res: Response, next: NextFunction) => {
 
     const verbName = req.params.verb;
     // const verbModes = (req.query.mode as string).split(','); // Assuming `mode` is a comma-separated string of modes
@@ -110,7 +222,9 @@ const readTenseFromVerb = (req: Request, res: Response, next: NextFunction) => {
     ];
 
     return Verb.aggregate(pipeline)
-        .then((verbs) => (verbs.length ? res.status(200).json({ verb: verbs[0] }) : res.status(404).json({ message: req.params.verb + ' not found' })))
+        .then((verbs) => (verbs.length
+            ? res.status(200).json({ verb: verbs[0] })
+            : res.status(404).json({ message: req.params.verb + ' not found' })))
         .catch((error) => res.status(500).json({ error }))
 }
 
@@ -126,7 +240,9 @@ const getAllSeparablerVerbs = (req: Request, res: Response, next: NextFunction) 
     }
 
     return Verb.find(query, project)
-        .then((verb) => (verb ? res.status(200).json({ verb }) : res.status(404).json({ message: req.query.verb + 'not found' })))
+        .then((verb) => (verb
+            ? res.status(200).json({ verb })
+            : res.status(404).json({ message: req.query.verb + 'not found' })))
         .catch((error) => res.status(500).json({ error }))
 }
 
@@ -134,7 +250,9 @@ const readVerb = (req: Request, res: Response, next: NextFunction) => {
     const verbName = req.params.verb
 
     return Verb.findOne({ verb: verbName })
-        .then((verb) => (verb ? res.status(200).json({ verb }) : res.status(404).json({ message: 'not found' })))
+        .then((verb) => (verb
+            ? res.status(200).json({ verb })
+            : res.status(404).json({ message: 'not found' })))
         .catch((error) => res.status(500).json({ error }))
 }
 
@@ -151,7 +269,10 @@ const getVerbExists = (req: Request, res: Response, next: NextFunction) => {
     }
 
     return Verb.find(query, project)
-        .then((data) => (data ? res.status(200).json({ data }) : res.status(404).json({ message: verbName })))
+        .then((data) => (data[0]
+            ? res.status(200).json({ exists: true })
+            : res.status(404).json({ exists: false }))
+        )
         .catch((error) => res.status(500).json({ error }))
 }
 
@@ -189,4 +310,4 @@ const deleteVerb = (req: Request, res: Response, next: NextFunction) => {
         .catch((error) => res.status(500).json({ error }))
 }
 
-export default { createVerb, readVerb, readAll, updateVerb, deleteVerb, getVerbSearchBar, readTenseFromVerb, getVerbsProperties, getAllSeparablerVerbs, getVerbExists }
+export default { createVerb, readVerb, readAll, updateVerb, deleteVerb, getVerbSearchBar, getTenseFromVerb, getVerbsProperties, getAllSeparablerVerbs, getVerbExists, getRandomVerb, renameProperties, addDescription }

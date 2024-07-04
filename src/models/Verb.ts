@@ -169,16 +169,16 @@ const VerbSchema: Schema = new Schema(
                     imperative: { type: [ConjugationSchema], required: true }
                 },
                 conditionalOrConjunctiveII: {
-                    konjunktiv_II: { type: [ConjugationSchema], required: true },
-                    konj_plusquam: { type: [ConjugationSchema], required: true }
                 },
                 conjunctive: {
-                    konjunktiv_I: { type: [ConjugationSchema], required: true },
-                    konjunktiv_II: { type: [ConjugationSchema], required: true },
-                    konj_perfekt: { type: [ConjugationSchema], required: true },
-                    konj_plusquam: { type: [ConjugationSchema], required: true },
-                    konj_futur_I: { type: [ConjugationSchema], required: true },
-                    konj_futur_II: { type: [ConjugationSchema], required: true }
+                    konj_I_perfekt: { type: [ConjugationSchema], required: true },
+                    konj_I_präsens: { type: [ConjugationSchema], required: false },
+                    konj_I_futur_I: { type: [ConjugationSchema], required: true },
+                    konj_I_futur_II: { type: [ConjugationSchema], required: true },
+                    konj_II_plusquam: { type: [ConjugationSchema], required: true },
+                    konj_II_präteritum: { type: [ConjugationSchema], required: true },
+                    konj_II_futur_I: { type: [ConjugationSchema], required: true },
+                    konj_II_futur_II: { type: [ConjugationSchema], required: true },
                 }
             }
         },

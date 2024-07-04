@@ -102,16 +102,16 @@ export const Schemas = {
                         imperative: Joi.object({ ...conjugationSchema() })
                     },
                     conjunctive: {
-                        konjunktiv_I: Joi.object({ ...conjugationSchema() }),
-                        konjunktiv_II: Joi.object({ ...conjugationSchema() }),
-                        konj_perfekt: Joi.object({ ...conjugationSchema() }),
-                        konj_plusquam: Joi.object({ ...conjugationSchema() }),
-                        konj_futur_I: Joi.object({ ...conjugationSchema() }),
-                        konj_futur_II: Joi.object({ ...conjugationSchema() })
+                        konj_I_perfekt: Joi.object({ ...conjugationSchema() }),
+                        konj_I_präsens: Joi.object({ ...conjugationSchema() }),
+                        konj_I_futur_I: Joi.object({ ...conjugationSchema() }),
+                        konj_I_futur_II: Joi.object({ ...conjugationSchema() }),
+                        konj_II_plusquam: Joi.object({ ...conjugationSchema() }),
+                        konj_II_präteritum: Joi.object({ ...conjugationSchema() }),
+                        konj_II_futur_I: Joi.object({ ...conjugationSchema() }),
+                        konj_II_futur_II: Joi.object({ ...conjugationSchema() }),
                     },
                     conditionalOrConjunctiveII: {
-                        konjunktiv_II: Joi.object({ ...conjugationSchema() }),
-                        konj_plusquam: Joi.object({ ...conjugationSchema() })
                     }
                 }
             },
